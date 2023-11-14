@@ -1,7 +1,7 @@
 
 Music Folder Renamer
 =============
-<p align="center"![banner](https://i.ibb.co/qsbQ8WT/banner.png)</p>
+<p align="center">![banner](https://i.ibb.co/qsbQ8WT/banner.png)</p>
 <!-- ![badge]() -->
 <!-- ![badge]() -->
 This takes your music folder, goes through all the sub-folders and changes the folder names based on the metadata, using mutagen & python.
