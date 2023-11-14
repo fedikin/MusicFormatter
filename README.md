@@ -1,7 +1,7 @@
 
 # Polysymphonic Music Formatter
 
-<img src="https://i.ibb.co/qsbQ8WT/banner.png">
+<img src="./img/banner.gif">
 
 Organize your music collection by renaming folders and files using customizable formats.
 
@@ -29,7 +29,7 @@ pip install tkinter ttk mutagen configparser
 4. Enter the desired song format template.
 5. Select the audio format to consider for extracting album information.
 6. Click the "Format Albums" button.
-<img src="https://raw.githubusercontent.com/polysymphonic/MusicFolderRenamer/main/example.gif">
+<img src="./img/example.gif">
 
 ## Album Format Template
 
