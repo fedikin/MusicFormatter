@@ -11,7 +11,8 @@ Organize your music collection by renaming folders and files using customizable 
 * Rename music files based on track metadata (track number, track title, artist, album artist)
 * Customizable naming formats for both folders and files
 * Uses placeholder tags to format folders and files
-* Supports various audio formats (FLAC, MP3, M4A, WAV)
+~~*Supports various audio formats (FLAC, MP3, M4A, WAV)~~
+Only supports .flac currently, ID3 is a nightmare.
 
 ## Installation
 
