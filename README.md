@@ -34,3 +34,4 @@ Usage
 
 Open the `format.py` file inside a text/code editor, and change `"C:\path\to\music"` at `line 56` to your music path.
 <br />Execute the script by running `py format.py` in CMD, or by opening the .py file.
+<br /><br />I suggest backing up your music before doing this, just incase anything goes wrong.
