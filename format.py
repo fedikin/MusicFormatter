@@ -1,5 +1,6 @@
 import os
 import re
+import string
 import tkinter as tk
 from tkinter import ttk, filedialog
 
@@ -58,6 +59,10 @@ def get_artist_from_file(file_path):
         print(f"Error reading artist metadata for {file_path}: {e}")
         return "", ""
 
+def replace_invalid_characters(name):
+    valid_chars = "-_.() %s%s" % (string.ascii_letters, string.digits)
+    return ''.join(c if c in valid_chars else '_' for c in name)
+
 def process_folder(folder_path, album_format, audio_format, song_format, message_label):
     audio_files = [f for f in os.listdir(folder_path) if f.endswith(f'.{audio_format}')]
 
@@ -82,7 +87,7 @@ def process_folder(folder_path, album_format, audio_format, song_format, message
         artist, _ = get_artist_from_file(first_audio_file)
         album_format = album_format.replace('{Artist}', artist)
 
-    new_folder_name = album_format.format(Album=album, Year=year, Type=folder_type)
+    new_folder_name = replace_invalid_characters(album_format.format(Album=album, Year=year, Type=folder_type))
     new_folder_path = os.path.join(os.path.dirname(folder_path), new_folder_name)
 
     try:
@@ -100,12 +105,12 @@ def process_folder(folder_path, album_format, audio_format, song_format, message
         track = audio.get('title', [''])[0]
         artist, album_artist = get_artist_from_file(old_song_path)
 
-        new_song_name = song_format.format(
+        new_song_name = replace_invalid_characters(song_format.format(
             TrackNumber=str(track_number).zfill(2),
             Track=track,
             Artist=artist,
             AlbumArtist=album_artist
-        )
+        ))
         new_song_path = os.path.join(new_folder_path, new_song_name + f'.{audio_format}')
 
         try:
@@ -164,7 +169,7 @@ def create_gui():
     root.title("Music Formatter")
     root.geometry("400x275")
     root.config(bg="#2E2E2E")
-    root.resizable(False, False)
+    root.resizable(True, True)
 
     label_root_dir = tk.Label(root, text="Music Folder:", fg="white", bg="#2E2E2E")
     label_root_dir.grid(row=0, column=0, padx=10, pady=10, sticky="w")
@@ -213,3 +218,4 @@ def create_gui():
 
 if __name__ == "__main__":
     create_gui()
+
