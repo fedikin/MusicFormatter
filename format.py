@@ -3,7 +3,6 @@ import re
 import tkinter as tk
 from tkinter import ttk, filedialog
 
-# Check and install configparser
 try:
     import configparser
     print("ConfigParser already installed.")
@@ -12,31 +11,27 @@ except ImportError:
     os.system("pip install configparser==5.0.2")
     import configparser
 
-# Check and install mutagen
 try:
-    from mutagen.flac import FLAC
+    from mutagen import File
     print("Mutagen already installed.")
 except ImportError:
     print("Mutagen not installed. Installing now...")
     os.system("pip install mutagen==1.45.1")
-    from mutagen.flac import FLAC
+    from mutagen import File
 
-# Config file path
 config_file_path = "config.ini"
 
-# Check if config.ini exists, create it if not
 if not os.path.exists(config_file_path):
     with open(config_file_path, "w") as configfile:
         configfile.write("[Settings]\n")
 
-# Load config
 config = configparser.ConfigParser()
 config.read(config_file_path)
 
-# Set default values if not present in the config file
 root_directory = config.get("Settings", "RootDirectory", fallback="")
 album_format = config.get("Settings", "AlbumFormat", fallback="{Album} ({Year}) - {Type}")
 audio_format = config.get("Settings", "AudioFormat", fallback="flac")
+song_format = config.get("Settings", "SongFormat", fallback="{TrackNumber} - {Track}")
 
 def get_folder_type(file_count):
     if file_count > 5:
@@ -55,14 +50,15 @@ def get_year_from_date(date):
 
 def get_artist_from_file(file_path):
     try:
-        audio = FLAC(file_path)
+        audio = File(file_path)
         artist = audio.get('artist', [''])[0]
-        return artist
+        album_artist = audio.get('albumartist', [''])[0]
+        return artist, album_artist
     except Exception as e:
         print(f"Error reading artist metadata for {file_path}: {e}")
-        return ""
+        return "", ""
 
-def process_folder(folder_path, album_format, audio_format, message_label):
+def process_folder(folder_path, album_format, audio_format, song_format, message_label):
     audio_files = [f for f in os.listdir(folder_path) if f.endswith(f'.{audio_format}')]
 
     if not audio_files:
@@ -72,7 +68,7 @@ def process_folder(folder_path, album_format, audio_format, message_label):
     first_audio_file = os.path.join(folder_path, audio_files[0])
 
     try:
-        audio = FLAC(first_audio_file)
+        audio = File(first_audio_file)
         album = audio.get('album', [''])[0]
         date_released = audio.get('date', [''])[0]
     except Exception as e:
@@ -83,11 +79,10 @@ def process_folder(folder_path, album_format, audio_format, message_label):
     year = get_year_from_date(date_released)
 
     if '{Artist}' in album_format:
-        artist = get_artist_from_file(first_audio_file)
+        artist, _ = get_artist_from_file(first_audio_file)
         album_format = album_format.replace('{Artist}', artist)
 
     new_folder_name = album_format.format(Album=album, Year=year, Type=folder_type)
-
     new_folder_path = os.path.join(os.path.dirname(folder_path), new_folder_name)
 
     try:
@@ -98,41 +93,60 @@ def process_folder(folder_path, album_format, audio_format, message_label):
         print(f"Error renaming {folder_path}: {e}")
         message_label.config(text=f"Error formatting albums: {e}", fg="red")
 
-def process_root_folder(root_folder, album_format, audio_format, message_label):
+    for audio_file in audio_files:
+        old_song_path = os.path.join(new_folder_path, audio_file)
+        audio = File(old_song_path)
+        track_number = audio.get('tracknumber', [''])[0]
+        track = audio.get('title', [''])[0]
+        artist, album_artist = get_artist_from_file(old_song_path)
+
+        new_song_name = song_format.format(
+            TrackNumber=str(track_number).zfill(2),
+            Track=track,
+            Artist=artist,
+            AlbumArtist=album_artist
+        )
+        new_song_path = os.path.join(new_folder_path, new_song_name + f'.{audio_format}')
+
+        try:
+            os.rename(old_song_path, new_song_path)
+            print(f"Renamed: {old_song_path} -> {new_song_path}")
+        except Exception as e:
+            print(f"Error renaming {old_song_path}: {e}")
+
+def process_root_folder(root_folder, album_format, audio_format, song_format, message_label):
     for root, dirs, files in os.walk(root_folder):
         for folder in dirs:
             folder_path = os.path.join(root, folder)
-            process_folder(folder_path, album_format, audio_format, message_label)
+            process_folder(folder_path, album_format, audio_format, song_format, message_label)
 
-            # Now iterate through the subdirectories of the current directory
             for subfolder in os.listdir(folder_path):
                 subfolder_path = os.path.join(folder_path, subfolder)
                 if os.path.isdir(subfolder_path):
-                    process_folder(subfolder_path, album_format, audio_format, message_label)
+                    process_folder(subfolder_path, album_format, audio_format, song_format, message_label)
 
-def format_albums():
-    global entry_root_dir, entry_album_format, root_directory, album_format, audio_format_var, message_label
+def format_albums_and_songs():
+    global entry_root_dir, entry_album_format, entry_song_format, root_directory, album_format, audio_format_var, song_format_var, message_label
 
-    message_label.config(text="", fg="black")  # Clear previous messages
+    message_label.config(text="", fg="black")
 
     root_dir = entry_root_dir.get()
     album_format = entry_album_format.get()
     audio_format = audio_format_var.get()
+    song_format = entry_song_format.get()
 
     if root_dir and album_format and audio_format:
-        # Check if the 'Settings' section exists, create it if not
         if not config.has_section("Settings"):
             config.add_section("Settings")
 
-        # Save the selected values to the config file
         config.set("Settings", "RootDirectory", root_dir)
         config.set("Settings", "AlbumFormat", album_format)
         config.set("Settings", "AudioFormat", audio_format)
+        config.set("Settings", "SongFormat", song_format)
         with open(config_file_path, "w") as configfile:
             config.write(configfile)
 
-        # Format albums using the updated values
-        process_root_folder(root_dir, album_format, audio_format, message_label)
+        process_root_folder(root_dir, album_format, audio_format, song_format, message_label)
 
 def select_root_directory():
     global entry_root_dir, root_directory
@@ -141,25 +155,23 @@ def select_root_directory():
     if root_dir:
         entry_root_dir.delete(0, tk.END)
         entry_root_dir.insert(0, root_dir)
-        root_directory = root_dir  # Update the root_directory variable
+        root_directory = root_dir
 
 def create_gui():
-    global entry_root_dir, entry_album_format, root_directory, album_format, audio_format_var, message_label
+    global entry_root_dir, entry_album_format, entry_song_format, root_directory, album_format, audio_format_var, song_format_var, message_label
 
-    # Create the main window
     root = tk.Tk()
-    root.title("Music Folder Formatter")
-    root.geometry("400x230")  # Larger height
-    root.config(bg="#2E2E2E")  # Set background color to a semi-dark color
-    root.resizable(False, False)  # Make the window not resizable
+    root.title("Music Formatter")
+    root.geometry("400x275")
+    root.config(bg="#2E2E2E")
+    root.resizable(False, False)
 
-    # Create and place widgets
     label_root_dir = tk.Label(root, text="Music Folder:", fg="white", bg="#2E2E2E")
     label_root_dir.grid(row=0, column=0, padx=10, pady=10, sticky="w")
 
     entry_root_dir = tk.Entry(root, width=30)
     entry_root_dir.grid(row=0, column=1, padx=10, pady=10, sticky="w")
-    entry_root_dir.insert(0, root_directory)  # Set default value
+    entry_root_dir.insert(0, root_directory)
 
     button_select = tk.Button(root, text="Browse", command=select_root_directory, fg="#2E2E2E", bg="white")
     button_select.grid(row=0, column=2, padx=10, pady=10, sticky="w")
@@ -169,32 +181,35 @@ def create_gui():
 
     entry_album_format = tk.Entry(root, width=30)
     entry_album_format.grid(row=1, column=1, padx=10, pady=10, sticky="w")
-    entry_album_format.insert(0, album_format)  # Set default value
+    entry_album_format.insert(0, album_format)
+
+    label_song_format = tk.Label(root, text="Song Format:", fg="white", bg="#2E2E2E")
+    label_song_format.grid(row=2, column=0, padx=10, pady=10, sticky="w")
+
+    entry_song_format = tk.Entry(root, width=30)
+    entry_song_format.grid(row=2, column=1, padx=10, pady=10, sticky="w")
+    entry_song_format.insert(0, song_format)
 
     label_audio_format = tk.Label(root, text="Audio Format:", fg="white", bg="#2E2E2E")
-    label_audio_format.grid(row=2, column=0, padx=10, pady=10, sticky="w")
+    label_audio_format.grid(row=3, column=0, padx=10, pady=10, sticky="w")
 
-    audio_formats = ["flac", "mp3", "ogg", "m4a", "wav"]  # Add more formats as needed
+    audio_formats = ["flac", "mp3", "ogg", "m4a", "wav"]
     audio_format_var = tk.StringVar(root)
-    audio_format_var.set(audio_format)  # Set default value
+    audio_format_var.set(audio_format)
 
-    # Use ttk.Combobox for a better-looking dropdown
     dropdown_audio_format = ttk.Combobox(root, textvariable=audio_format_var, values=audio_formats, state="readonly")
-    dropdown_audio_format.grid(row=2, column=1, padx=10, pady=10, sticky="w")
+    dropdown_audio_format.grid(row=3, column=1, padx=10, pady=10, sticky="w")
 
-    button_process = tk.Button(root, text="Format Albums", command=format_albums, fg="#2E2E2E", bg="white")
-    button_process.grid(row=3, column=0, columnspan=3, pady=10)
+    button_process = tk.Button(root, text="Format Albums", command=format_albums_and_songs, fg="#2E2E2E", bg="white")
+    button_process.grid(row=4, column=0, columnspan=3, pady=10)
 
-    # Message label to display status messages
     message_label = tk.Label(root, text="", fg="black", bg="#2E2E2E")
-    message_label.grid(row=4, column=0, columnspan=3, pady=10)
-    
+    message_label.grid(row=5, column=0, columnspan=3, pady=10)
+
     polysymphonic_label = tk.Label(root, text="polysymphonic", fg="gray", bg="#2E2E2E")
-    polysymphonic_label.grid(row=5, column=2, padx=5, pady=0, sticky="se")  # Place it in the bottom right corner
-    
-    # Start the main event loop
+    polysymphonic_label.grid(row=6, column=2, padx=5, pady=0, sticky="se")
+
     root.mainloop()
 
 if __name__ == "__main__":
     create_gui()
-
