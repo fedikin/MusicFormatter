@@ -51,7 +51,13 @@ def process_root_folder(root_folder):
         for folder in dirs:
             folder_path = os.path.join(root, folder)
             process_folder(folder_path)
+            
+            # Now iterate through the subdirectories of the current directory
+            for subfolder in os.listdir(folder_path):
+                subfolder_path = os.path.join(folder_path, subfolder)
+                if os.path.isdir(subfolder_path):
+                    process_folder(subfolder_path)
 
 if __name__ == "__main__":
-    root_directory = r"C:\path\to\music"
+    root_directory = r"C:\Users\polysymphonic\Downloads\music"
     process_root_folder(root_directory)
