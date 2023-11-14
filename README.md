@@ -42,6 +42,6 @@ Music/
 │  ├─ Album/
 │  │  ├─ Song.flac/
 ```
-**I suggest backing up your music before doing this, just incase anything goes wrong.**<br />
 <img src="https://raw.githubusercontent.com/polysymphonic/MusicFolderRenamer/main/example1.gif">
 <img src="https://i.ibb.co/3N7W0rf/cmd-Eqx-E8iv-JZe.png">
+**I suggest backing up your music before doing this, just incase anything goes wrong.**
