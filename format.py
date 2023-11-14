@@ -31,7 +31,6 @@ config.read(config_file_path)
 
 root_directory = config.get("Settings", "RootDirectory", fallback="")
 album_format = config.get("Settings", "AlbumFormat", fallback="{Album} ({Year}) - {Type}")
-audio_format = config.get("Settings", "AudioFormat", fallback="flac")
 song_format = config.get("Settings", "SongFormat", fallback="{TrackNumber} - {Track}")
 
 def get_folder_type(file_count):
@@ -60,14 +59,14 @@ def get_artist_from_file(file_path):
         return "", ""
 
 def replace_invalid_characters(name):
-    valid_chars = "-_.() %s%s" % (string.ascii_letters, string.digits)
-    return ''.join(c if c in valid_chars else '_' for c in name)
+    invalid_chars = set(r'< > : " / \ | ? *'.split())
+    return ''.join(c if c not in invalid_chars else '_' for c in name)
 
-def process_folder(folder_path, album_format, audio_format, song_format, message_label):
-    audio_files = [f for f in os.listdir(folder_path) if f.endswith(f'.{audio_format}')]
+def process_folder(folder_path, album_format, song_format, message_label):
+    audio_files = [f for f in os.listdir(folder_path) if f.lower().endswith('.flac')]
 
     if not audio_files:
-        message_label.config(text=f"No {audio_format} files found in the selected directory.", fg="red")
+        message_label.config(text="No FLAC files found in the selected directory.", fg="red")
         return
 
     first_audio_file = os.path.join(folder_path, audio_files[0])
@@ -93,7 +92,7 @@ def process_folder(folder_path, album_format, audio_format, song_format, message
     try:
         os.rename(folder_path, new_folder_path)
         print(f"Renamed: {folder_path} -> {new_folder_path}")
-        message_label.config(text=f"Albums formatted successfully!", fg="green")
+        message_label.config(text="Albums formatted successfully!", fg="green")
     except Exception as e:
         print(f"Error renaming {folder_path}: {e}")
         message_label.config(text=f"Error formatting albums: {e}", fg="red")
@@ -111,7 +110,7 @@ def process_folder(folder_path, album_format, audio_format, song_format, message
             Artist=artist,
             AlbumArtist=album_artist
         ))
-        new_song_path = os.path.join(new_folder_path, new_song_name + f'.{audio_format}')
+        new_song_path = os.path.join(new_folder_path, new_song_name + '.flac')
 
         try:
             os.rename(old_song_path, new_song_path)
@@ -119,51 +118,49 @@ def process_folder(folder_path, album_format, audio_format, song_format, message
         except Exception as e:
             print(f"Error renaming {old_song_path}: {e}")
 
-def process_root_folder(root_folder, album_format, audio_format, song_format, message_label):
+def process_root_folder(root_folder, album_format, song_format, message_label):
     for root, dirs, files in os.walk(root_folder):
         for folder in dirs:
             folder_path = os.path.join(root, folder)
-            process_folder(folder_path, album_format, audio_format, song_format, message_label)
+            process_folder(folder_path, album_format, song_format, message_label)
 
             for subfolder in os.listdir(folder_path):
                 subfolder_path = os.path.join(folder_path, subfolder)
                 if os.path.isdir(subfolder_path):
-                    process_folder(subfolder_path, album_format, audio_format, song_format, message_label)
+                    process_folder(subfolder_path, album_format, song_format, message_label)
 
 def format_albums_and_songs():
-    global entry_root_dir, entry_album_format, entry_song_format, root_directory, album_format, audio_format_var, song_format_var, message_label
+    global entry_root_dir, entry_album_format, entry_song_format, root_directory, album_format, message_label
 
     message_label.config(text="", fg="black")
 
     root_dir = entry_root_dir.get()
     album_format = entry_album_format.get()
-    audio_format = audio_format_var.get()
     song_format = entry_song_format.get()
 
-    if root_dir and album_format and audio_format:
+    if root_dir and album_format:
         if not config.has_section("Settings"):
             config.add_section("Settings")
 
         config.set("Settings", "RootDirectory", root_dir)
         config.set("Settings", "AlbumFormat", album_format)
-        config.set("Settings", "AudioFormat", audio_format)
         config.set("Settings", "SongFormat", song_format)
         with open(config_file_path, "w") as configfile:
             config.write(configfile)
 
-        process_root_folder(root_dir, album_format, audio_format, song_format, message_label)
+        process_root_folder(root_dir, album_format, song_format, message_label)
 
 def select_root_directory():
     global entry_root_dir, root_directory
 
-    root_dir = filedialog.askdirectory(initialdir=root_directory)
+    root_dir = filedialog.askdirectory(initialdir=root_directory, title="Select Root Directory")
     if root_dir:
         entry_root_dir.delete(0, tk.END)
         entry_root_dir.insert(0, root_dir)
         root_directory = root_dir
 
 def create_gui():
-    global entry_root_dir, entry_album_format, entry_song_format, root_directory, album_format, audio_format_var, song_format_var, message_label
+    global entry_root_dir, entry_album_format, entry_song_format, root_directory, album_format, message_label
 
     root = tk.Tk()
     root.title("Music Formatter")
@@ -195,24 +192,14 @@ def create_gui():
     entry_song_format.grid(row=2, column=1, padx=10, pady=10, sticky="w")
     entry_song_format.insert(0, song_format)
 
-    label_audio_format = tk.Label(root, text="Audio Format:", fg="white", bg="#2E2E2E")
-    label_audio_format.grid(row=3, column=0, padx=10, pady=10, sticky="w")
-
-    audio_formats = ["flac", "mp3", "ogg", "m4a", "wav"]
-    audio_format_var = tk.StringVar(root)
-    audio_format_var.set(audio_format)
-
-    dropdown_audio_format = ttk.Combobox(root, textvariable=audio_format_var, values=audio_formats, state="readonly")
-    dropdown_audio_format.grid(row=3, column=1, padx=10, pady=10, sticky="w")
-
     button_process = tk.Button(root, text="Format Albums", command=format_albums_and_songs, fg="#2E2E2E", bg="white")
-    button_process.grid(row=4, column=0, columnspan=3, pady=10)
+    button_process.grid(row=3, column=0, columnspan=3, pady=10)
 
     message_label = tk.Label(root, text="", fg="black", bg="#2E2E2E")
-    message_label.grid(row=5, column=0, columnspan=3, pady=10)
+    message_label.grid(row=4, column=0, columnspan=3, pady=10)
 
     polysymphonic_label = tk.Label(root, text="polysymphonic", fg="gray", bg="#2E2E2E")
-    polysymphonic_label.grid(row=6, column=2, padx=5, pady=0, sticky="se")
+    polysymphonic_label.grid(row=5, column=2, padx=5, pady=0, sticky="se")
 
     root.mainloop()
 
