@@ -35,6 +35,15 @@ Usage
 Open the `format.py` file inside a text/code editor, and change `"C:\path\to\music"` at `line 56` to your music path.
 <br />Execute the script by running `py format.py` in CMD, or by opening the .py file.
 <br />The format is `{Album} {Year} - {RecordType}
+<br />Your music folder should look like this for it to work.
+``` 
+Music/
+├─ Artist/
+│  ├─ Album/
+│  │  ├─ Song/
+
+```
+
 <br /><br />**I suggest backing up your music before doing this, just incase anything goes wrong.**<br />
 <img src="https://raw.githubusercontent.com/polysymphonic/MusicFolderRenamer/main/example1.gif">
 <img src="https://i.ibb.co/3N7W0rf/cmd-Eqx-E8iv-JZe.png">
