@@ -1,6 +1,5 @@
 
-Music Folder Renamer
-=============
+<h1 align="center">Music Folder Renamer</h1>
 <p align="center">
   <img src="https://i.ibb.co/qsbQ8WT/banner.png" alt="MFR Banner"/>
 </p>
