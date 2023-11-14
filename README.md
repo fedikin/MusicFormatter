@@ -1,5 +1,5 @@
 
-<p align="center">Music Folder Renamer</p>
+Music Folder Renamer
 =============
 <p align="center">
   <img src="https://i.ibb.co/qsbQ8WT/banner.png" alt="MFR Banner"/>
