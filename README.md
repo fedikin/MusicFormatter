@@ -35,12 +35,12 @@ Usage
 Open the `format.py` file inside a text/code editor, and change `"C:\path\to\music"` at `line 56` to your music path.
 <br />Execute the script by running `py format.py` in CMD, or by opening the .py file.
 <br />The format is `{Album} {Year} - {RecordType}
-<br />Your music folder should look like this for it to work.
+<br />Your music folder structure should look like this for it to work.
 ``` 
 Music/
 ├─ Artist/
 │  ├─ Album/
-│  │  ├─ Song/
+│  │  ├─ Song.flac/
 
 ```
 
