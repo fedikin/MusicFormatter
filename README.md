@@ -36,5 +36,5 @@ Open the `format.py` file inside a text/code editor, and change `"C:\path\to\mus
 <br />Execute the script by running `py format.py` in CMD, or by opening the .py file.
 <br />The format is `{Album} {Year} - {RecordType}
 <br /><br />**I suggest backing up your music before doing this, just incase anything goes wrong.**
-<img src="https://raw.githubusercontent.com/polysymphonic/MusicFolderRenamer/main/example.gif">
+<img src="https://raw.githubusercontent.com/polysymphonic/MusicFolderRenamer/main/example1.gif">
 <img src="https://i.ibb.co/3N7W0rf/cmd-Eqx-E8iv-JZe.png">
