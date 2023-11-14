@@ -27,8 +27,7 @@ pip install tkinter ttk mutagen configparser
 2. Select the root directory containing your music folders.
 3. Enter the desired album format template.
 4. Enter the desired song format template.
-5. Select the audio format to consider for extracting album information.
-6. Click the "Format Albums" button.
+5. Click the "Format Albums" button.
 <img src="./img/example.gif">
 
 ## Album Format Template
