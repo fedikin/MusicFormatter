@@ -15,19 +15,12 @@ root = None
 
 def install_required_packages():
     try:
-        with open('requirements.txt', 'r') as file:
-            requirements = file.read().splitlines()
+        subprocess.run(['pip', 'install', '--no-cache-dir', '-r', 'requirements.txt'])
+        print("All requirements installed successfully.")
     except FileNotFoundError:
         print("requirements.txt not found. Make sure the file exists.")
-        return
-
-    for requirement in requirements:
-        print(f"Installing {requirement}...")
-        subprocess.run(['pip', 'install', requirement])
-        print(f"{requirement} installed successfully.")
 
 install_required_packages()
-
 import configparser
 from mutagen import File
 
@@ -195,13 +188,15 @@ def theme_changer():
     global current_theme, theme_button_image, root
     if current_theme == "Light":
         customtkinter.set_appearance_mode("Dark")
+        root.iconbitmap("img\\icon\\light.ico")  # Set the light icon
         current_theme = "Dark"
     else:
         customtkinter.set_appearance_mode("Light")
+        root.iconbitmap("img\\icon\\dark.ico")   # Set the dark icon
         current_theme = "Light"
 
-    image_path_light = r"img\sun.png"
-    image_path_dark = r"img\moon.png"
+    image_path_light = r"img\icon\sun.png"
+    image_path_dark = r"img\icon\moon.png"
 
     theme_button_image = customtkinter.CTkImage(
         Image.open(image_path_light if current_theme == "Dark" else image_path_dark),
@@ -209,9 +204,7 @@ def theme_changer():
     )
 
     root.lone_button.configure(image=theme_button_image)
-
-    root.lone_button.configure(image=theme_button_image)
-
+    
 def format_albums_and_songs():
     global entry_root_dir, entry_album_format, entry_song_format, root_directory, album_format, message_label, flac_files_found
 
@@ -259,6 +252,8 @@ def create_gui():
     root.title("Music Formatter")
     root.geometry("390x245")
     root.resizable(True, True)
+    root.iconbitmap("img\icon\light.ico")
+
 
     label_root_dir = customtkinter.CTkLabel(root, text="Music Folder", fg_color="transparent")
     label_root_dir.grid(row=0, column=0, padx=10, pady=10, sticky="w")
@@ -290,8 +285,8 @@ def create_gui():
     message_label = customtkinter.CTkLabel(root, text="", fg_color="transparent")
     message_label.grid(row=4, column=0, columnspan=3, pady=10)
     
-    image_path_light = r"img\sun.png"
-    image_path_dark = r"img\moon.png"
+    image_path_light = r"img\icon\sun.png"
+    image_path_dark = r"img\icon\moon.png"
 
     theme_button_image = customtkinter.CTkImage(
         Image.open(image_path_light if current_theme == "Dark" else image_path_dark),
