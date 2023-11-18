@@ -1,24 +1,27 @@
 import os
 import re
 import string
+import subprocess
 import tkinter as tk
 from tkinter import ttk, filedialog
 
-try:
-    import configparser
-    print("ConfigParser already installed.")
-except ImportError:
-    print("ConfigParser not installed. Installing now...")
-    os.system("pip install configparser==5.0.2")
-    import configparser
+def install_required_packages():
+    try:
+        with open('requirements.txt', 'r') as file:
+            requirements = file.read().splitlines()
+    except FileNotFoundError:
+        print("requirements.txt not found. Make sure the file exists.")
+        return
 
-try:
-    from mutagen import File
-    print("Mutagen already installed.")
-except ImportError:
-    print("Mutagen not installed. Installing now...")
-    os.system("pip install mutagen==1.45.1")
-    from mutagen import File
+    for requirement in requirements:
+        print(f"Installing {requirement}...")
+        subprocess.run(['pip', 'install', requirement])
+        print(f"{requirement} installed successfully.")
+
+install_required_packages()
+
+import configparser
+from mutagen import File
 
 config_file_path = "config.ini"
 
