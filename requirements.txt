@@ -1,5 +1,5 @@
-configparser==5.0.2
-mutagen==1.45.1
-Pillow==8.2.0
-tk
-customtkinter
+customtkinter==5.2.1
+darkdetect==0.8.0
+mutagen==1.47.0
+packaging==23.2
+Pillow==10.1.0
