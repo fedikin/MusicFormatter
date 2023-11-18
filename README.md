@@ -5,6 +5,24 @@
 
 Organize your music collection by renaming folders and files using customizable formats.
 
+# Table of Contents
+
+1. [Polysymphonic Music Formatter](#polysymphonic-music-formatter)
+   - [Features](#features)
+   - [Installation](#installation)
+   - [Usage](#usage)
+     - [Formatting](#formatting)
+       - [Album](#album)
+       - [Song](#song)
+   - [Album Format Template](#album-format-template)
+   - [Song Format Template](#song-format-template)
+   - [Supported Audio File Formats](#supported-audio-file-formats)
+   - [Gallery](#gallery)
+   - [Contributing](#contributing)
+   - [License](#license)
+
+
+
 ## Features
 
 * Rename folders based on album metadata (artist, album, year, type)
@@ -29,9 +47,8 @@ pip install tkinter ttk mutagen configparser
 3. Enter the desired album format template.
 4. Enter the desired song format template.
 5. Click the "Format Albums" button.
-<img src="./img/example.gif">
-
-## Album Format Template
+### Formatting
+#### Album
 
 The album format template uses placeholder tags that will be replaced with actual album information:
 
@@ -40,7 +57,7 @@ The album format template uses placeholder tags that will be replaced with actua
 - `{Year}`: Year of release
 - `{Type}`: Album type (Album, EP, Single)
 
-## Song Format Template
+#### Song
 
 The song format template uses placeholder tags that will be replaced with actual track information:
 
@@ -49,27 +66,23 @@ The song format template uses placeholder tags that will be replaced with actual
 - `{Artist}`: Track artist
 - `{AlbumArtist}`: Album artist
 
-## Example Album Format Templates
-
-- `{Album} ({Year})`
-- `{Album} ({Artist}) - ({Year})`
-- `{Album} - {Artist}`
-
-## Example Song Format Templates
-
-- `{TrackNumber} - {Track}`
-- `{TrackNumber} - {Track} - {Artist}`
-- `{TrackNumber} - {Track} - {Artist} - {AlbumArtist}`
-
-## Supported Audio Formats
+## Supported Audio File Formats
 
 The script currently supports the following audio formats:
 
 - FLAC (.flac)
-- MP3 (.mp3)
-- OGG (.ogg)
-- M4A (.m4a)
-- WAV (.wav)
+- ~~MP3 (.mp3)~~
+- ~~OGG (.ogg)~~
+- ~~M4A (.m4a)~~
+- ~~WAV (.wav)~~
+
+## Gallery
+<img src="./img/format.gif">
+<img src="./img/success.png">
+<img src="./img/error.png">
+<img src="./img/theme.gif">
+<img src="./img/file.png">
+
 
 ## Contributing
 
