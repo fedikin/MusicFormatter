@@ -1,8 +1,6 @@
 
 # Polysymphonic Music Formatter
 
-<img src="./img/banner.gif">
-
 Organize your music collection by renaming folders and files using customizable formats.
 
 # Table of Contents
